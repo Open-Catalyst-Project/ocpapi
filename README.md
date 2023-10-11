@@ -135,6 +135,19 @@ results = await find_adsorbate_binding_sites(
 )
 ```
 
+### Skip relaxation approval prompts
+
+Calls to `find_adsorbate_binding_sites()` will, by default, show the user the relaxations that will be run and ask for approval before they are submitted. In order to run the relaxations automatically without manual approval, `skip_confirmation` can be added to the call. For example:
+```python
+from ocpapi import find_adsorbate_binding_sites
+
+results = await find_adsorbate_binding_sites(
+    adsorbate="*OH",
+    bulk="mp-126",
+    skip_confirmation=True,
+)
+```
+
 ### Converting to [ase.Atoms](https://wiki.fysik.dtu.dk/ase/ase/atoms.html) objects
 
 **Important! The `to_ase_atoms()` method described below will fail with an import error if [ase](https://wiki.fysik.dtu.dk/ase) is not installed.**

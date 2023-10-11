@@ -1,4 +1,5 @@
 import time
+from contextlib import ExitStack
 from typing import Any, List
 from unittest import IsolatedAsyncioTestCase, mock
 
@@ -88,10 +89,18 @@ class TestAdsorbates(IsolatedAsyncioTestCase):
             slab, all_configs = await _get_absorbate_configs_on_slab(*args, **kwargs)
             return slab, all_configs[:1]
 
-        with mock.patch(
-            "ocpapi.workflows.adsorbates._get_absorbate_configs_on_slab",
-            wraps=_get_first_absorbate_config_on_slab,
-        ):
+        with ExitStack() as es:
+            es.enter_context(
+                mock.patch(
+                    "ocpapi.workflows.adsorbates._get_absorbate_configs_on_slab",
+                    wraps=_get_first_absorbate_config_on_slab,
+                )
+            )
+
+            # Users will be prompted whether they want to continue with
+            # relaxations. Mock that prompt and response.
+            es.enter_context(mock.patch("builtins.input", return_value="y"))
+
             results = await find_adsorbate_binding_sites(
                 adsorbate="*O",
                 bulk="mp-30",

@@ -41,6 +41,7 @@ from ocpapi.client.ui import _API_TO_UI_HOSTS
 from ocpapi.workflows import (
     AdsorbateBindingSites,
     AdsorbateSlabRelaxations,
+    RelaxationsNotApproved,
     UnsupportedAdsorbateException,
     UnsupportedBulkException,
     UnsupportedModelException,
@@ -496,6 +497,7 @@ class TestAdsorbates(IsolatedAsyncioTestCase):
             message: str
             adsorbate: str
             bulk: str
+            relaxations_prompt_input: List[str]
             client_get_models: List[Union[Models, Exception]]
             client_get_adsorbates: List[Union[Adsorbates, Exception]]
             client_get_bulks: List[Union[Bulks, Exception]]
@@ -636,6 +638,7 @@ class TestAdsorbates(IsolatedAsyncioTestCase):
                 message="exception while getting models",
                 adsorbate="*B",
                 bulk="id-1",
+                relaxations_prompt_input=["y"],
                 client_get_models=[TestException()],
                 client_get_adsorbates=[adsorbates],
                 client_get_bulks=[bulks],
@@ -662,6 +665,7 @@ class TestAdsorbates(IsolatedAsyncioTestCase):
                 message="model not supported",
                 adsorbate="*B",
                 bulk="id-1",
+                relaxations_prompt_input=["y"],
                 non_default_args={
                     "model": "model_3",  # Not is set returned by API
                 },
@@ -690,6 +694,7 @@ class TestAdsorbates(IsolatedAsyncioTestCase):
                 message="exception while getting adsorbates",
                 adsorbate="*B",
                 bulk="id-1",
+                relaxations_prompt_input=["y"],
                 client_get_models=[models],
                 client_get_adsorbates=[TestException()],
                 client_get_bulks=[bulks],
@@ -716,6 +721,7 @@ class TestAdsorbates(IsolatedAsyncioTestCase):
                 message="adsorbate not supported",
                 adsorbate="*C",  # Not is set returned by API
                 bulk="id-1",
+                relaxations_prompt_input=["y"],
                 client_get_models=[models],
                 client_get_adsorbates=[adsorbates],
                 client_get_bulks=[bulks],
@@ -741,6 +747,7 @@ class TestAdsorbates(IsolatedAsyncioTestCase):
                 message="exception while getting bulks",
                 adsorbate="*B",
                 bulk="id-1",
+                relaxations_prompt_input=["y"],
                 client_get_models=[models],
                 client_get_adsorbates=[adsorbates],
                 client_get_bulks=[TestException()],
@@ -766,6 +773,7 @@ class TestAdsorbates(IsolatedAsyncioTestCase):
                 message="bulk not supported",
                 adsorbate="*B",
                 bulk="id-3",  # Not in set returned by API
+                relaxations_prompt_input=["y"],
                 client_get_models=[models],
                 client_get_adsorbates=[adsorbates],
                 client_get_bulks=[bulks],
@@ -791,6 +799,7 @@ class TestAdsorbates(IsolatedAsyncioTestCase):
                 message="exception while getting slabs",
                 adsorbate="*B",
                 bulk="id-1",
+                relaxations_prompt_input=["y"],
                 client_get_models=[models],
                 client_get_adsorbates=[adsorbates],
                 client_get_bulks=[bulks],
@@ -817,6 +826,7 @@ class TestAdsorbates(IsolatedAsyncioTestCase):
                 message="exception while getting adslab configs",
                 adsorbate="*B",
                 bulk="id-1",
+                relaxations_prompt_input=["y"],
                 client_get_models=[models],
                 client_get_adsorbates=[adsorbates],
                 client_get_bulks=[bulks],
@@ -837,12 +847,40 @@ class TestAdsorbates(IsolatedAsyncioTestCase):
                 ],
                 expected_exception=TestException,
             ),
+            # If the user chooses not to submit relaxations then an exception
+            # should be raised
+            TestCase(
+                message="user chooses not to submit relaxations",
+                adsorbate="*B",
+                bulk="id-1",
+                relaxations_prompt_input=["n"],  # Simulates user rejection
+                client_get_models=[models],
+                client_get_adsorbates=[adsorbates],
+                client_get_bulks=[bulks],
+                client_get_slabs=[slabs],
+                client_get_adsorbate_slab_configs=[
+                    adsorbate_slab_configs_1,
+                    adsorbate_slab_configs_2,
+                ],
+                client_submit_adsorbate_slab_relaxations=[
+                    system_1,
+                    system_2,
+                ],
+                client_get_adsorbate_slab_relaxations_results=[
+                    results,
+                    results,
+                    results,
+                    results,
+                ],
+                expected_exception=RelaxationsNotApproved,
+            ),
             # An exception raised when submitting relaxations should be
             # re-raised
             TestCase(
                 message="exception while submitting relaxations",
                 adsorbate="*B",
                 bulk="id-1",
+                relaxations_prompt_input=["y"],
                 client_get_models=[models],
                 client_get_adsorbates=[adsorbates],
                 client_get_bulks=[bulks],
@@ -869,6 +907,7 @@ class TestAdsorbates(IsolatedAsyncioTestCase):
                 message="exception while getting relaxation results",
                 adsorbate="*B",
                 bulk="id-1",
+                relaxations_prompt_input=["y"],
                 client_get_models=[models],
                 client_get_adsorbates=[adsorbates],
                 client_get_bulks=[bulks],
@@ -895,6 +934,7 @@ class TestAdsorbates(IsolatedAsyncioTestCase):
                 message="no slabs",
                 adsorbate="*B",
                 bulk="id-1",
+                relaxations_prompt_input=["y"],
                 client_get_models=[models],
                 client_get_adsorbates=[adsorbates],
                 client_get_bulks=[bulks],
@@ -923,6 +963,7 @@ class TestAdsorbates(IsolatedAsyncioTestCase):
                 message="retryable exceptions",
                 adsorbate="*B",
                 bulk="id-1",
+                relaxations_prompt_input=["z", "y"],  # Invalid input retried
                 client_get_models=[RequestException("", "", ""), models],
                 client_get_adsorbates=[RequestException("", "", ""), adsorbates],
                 client_get_bulks=[RequestException("", "", ""), bulks],
@@ -972,6 +1013,12 @@ class TestAdsorbates(IsolatedAsyncioTestCase):
                 message="non-default values",
                 adsorbate="*B",
                 bulk="id-1",
+                # We set skip_confirmation below, which bypasses the approval
+                # prompt to submit relaxations. If that field were not to
+                # behave as expected, we would except the prompt step to raise
+                # an exception since we are setting a "n" response to the
+                # prompt here
+                relaxations_prompt_input=["n"],
                 client_get_models=[models],
                 client_get_adsorbates=[adsorbates],
                 client_get_bulks=[bulks],
@@ -993,6 +1040,7 @@ class TestAdsorbates(IsolatedAsyncioTestCase):
                 non_default_args={
                     "model": "model_2",
                     "slab_filter": keep_slabs_with_miller_indices([(1, 0, 0)]),
+                    "skip_confirmation": True,
                 },
                 expected=AdsorbateBindingSites(
                     adsorbate="*B",
@@ -1048,10 +1096,22 @@ class TestAdsorbates(IsolatedAsyncioTestCase):
                     )
                 )
 
+                # Users will be prompted whether they want to continue with
+                # relaxations. Mock that prompt and response.
+                es.enter_context(
+                    mock.patch(
+                        "builtins.input",
+                        side_effect=case.relaxations_prompt_input,
+                    )
+                )
+
                 # Coroutine that will fetch results
                 other = case.non_default_args if case.non_default_args else {}
                 coro = find_adsorbate_binding_sites(
-                    adsorbate=case.adsorbate, bulk=case.bulk, client=client, **other
+                    adsorbate=case.adsorbate,
+                    bulk=case.bulk,
+                    client=client,
+                    **other,
                 )
 
                 # Make sure an exception is raised if expected
