@@ -1,3 +1,5 @@
+# THIS REPOSITORY HAS BEEN MOVED TO [http://github.com/fair-chem/fairchem/tree/main/src/fairchem/demo/ocpapi](http://github.com/fair-chem/fairchem/tree/main/src/fairchem/demo/ocpapi)
+
 # ocpapi
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/Open-Catalyst-Project/ocpapi/tree/main.svg?style=shield)](https://dl.circleci.com/status-badge/redirect/gh/Open-Catalyst-Project/ocpapi/tree/main) [![codecov](https://codecov.io/gh/Open-Catalyst-Project/ocpapi/graph/badge.svg?token=66Z7Y7QUUW)](https://codecov.io/gh/Open-Catalyst-Project/ocpapi)
