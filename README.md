@@ -1,3 +1,5 @@
+# REPO DEPRECATION: In 2024 the FAIR Chemistry team consolidated its various resources to improve release/testing/availability, and [the OCP API moved to the fairchem repo](https://github.com/FAIR-Chem/fairchem/tree/main/src/fairchem/demo/ocpapi). You can find updated documentation on how to use the consolidated resources at https://fair-chem.github.io/
+
 # ocpapi
 
 [![CircleCI](https://dl.circleci.com/status-badge/img/gh/Open-Catalyst-Project/ocpapi/tree/main.svg?style=shield)](https://dl.circleci.com/status-badge/redirect/gh/Open-Catalyst-Project/ocpapi/tree/main) [![codecov](https://codecov.io/gh/Open-Catalyst-Project/ocpapi/graph/badge.svg?token=66Z7Y7QUUW)](https://codecov.io/gh/Open-Catalyst-Project/ocpapi)
